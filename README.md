@@ -56,3 +56,33 @@ const DogDisplay = () => {
 After fixing the code provide and explanation to what you fixed and why it needed to be fixed.
 
 ### Response 4
+
+What I fixed within the code was defining an async function inside of the `useEffect` and calling it instead of making the `useEffect` callback **asynchronous**. The reason for that is because `useEffect` doesn't support support **asynchronous** functions directly, and expects a **synchronous** cleanup function. When it's made **asynchronous** instead, it returns a **Promise** instead of a cleanup function, which React wouldn't know what to do with it.
+
+_*Fixed code:*_
+
+```jsx
+const DogDisplay = () => {
+  const [imgSrc, setImgSrc] = useState(
+    'https://images.dog.ceo/breeds/hound-english/n02089973_612.jpg'
+  );
+
+  useEffect(() => {
+    const fetchDogImage = async () => {
+      // new defined async function for fetching
+      try {
+        const response = await fetch('https://dog.ceo/api/breeds/image/random');
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        const data = await response.json();
+        setImgSrc(data.message);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchDogImage();
+  }, []);
+
+  return <img src={imgSrc} alt="Random Dog" />;
+};
+```
